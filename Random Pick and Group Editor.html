@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!--
+    Random Pick & Group Generator
+    
+    Copyright (c) 2024 Wolfgang Schneider, Florian Dagner
+
+    Editor und Erweiterung für Gruppenbildung: Wolfgang Schneider
+    Ursprüngliches "Random Pick Script": Florian Dagner
+
+    Dieses Werk ist lizenziert unter der Creative Commons 
+    Namensnennung-Nicht kommerziell-Weitergabe unter gleichen Bedingungen 4.0 International Lizenz.
+    Details: http://creativecommons.org/licenses/by-nc-sa/4.0/
+-->
+<html lang="de">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Pick & Group Generator</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f0f2f5; color: #333; padding: 20px; }
+        .editor-wrapper { max-width: 900px; margin: 0 auto; background: #ffffff; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+        h1, h2 { border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; color: #172554; }
+        .form-section { background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e2e8f0; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 1rem; box-sizing: border-box; margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        button, .file-label { padding: 12px 22px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 1rem; transition: background-color 0.2s; margin-right: 10px; margin-bottom: 10px; }
+        .primary-btn { background-color: #1e3a8a; color: white; }
+        .primary-btn:hover:not(:disabled) { background-color: #172554; }
+        .secondary-btn { background-color: #10b981; color: white; }
+        .secondary-btn:hover { background-color: #059669; }
+        .tertiary-btn { background-color: #6366f1; color: white; }
+        .tertiary-btn:hover { background-color: #4f46e5; }
+        .edit-btn { background-color: #f59e0b; color: white; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; margin: 0 5px 0 0; }
+        .delete-btn { background-color: #ef4444; color: white; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px; margin: 0; }
+        .info-text { font-size: 0.9rem; color: #64748b; margin-top: 0.5rem; margin-bottom: 1rem; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .footer { max-width: 900px; margin: 2rem auto 0; padding: 1.5rem; text-align: center; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+        .footer p { font-size: 0.85rem; color: #64748b; margin: 0; }
+        .footer a { color: #1e3a8a; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div id="editor-wrapper" class="editor-wrapper">
+    <h1>Random Pick & Group Generator</h1>
+    <p>Verwalten Sie hier Namen und exportieren Sie ein passendes Tool für Ihren Anwendungsfall.</p>
+
+    <!-- Namensverwaltung -->
+    <div class="form-section"><h2>Namen importieren (optional)</h2><div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;"><input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" style="display: none;"><label for="import-file-input" class="file-label tertiary-btn">Datei auswählen</label><span id="file-name-display" style="color: #475569; font-style: italic;">Keine Datei ausgewählt.</span><button id="import-btn" class="secondary-btn" disabled>Importieren</button></div></div>
+    <div class="form-section"><h2>Namen hinzufügen/bearbeiten</h2><input type="text" id="new-name-input" placeholder="z.B. Maria Musterfrau"><button id="add-name-btn" class="secondary-btn">Name hinzufügen</button></div>
+    <div class="list-section"><h2>Ihre Namensliste</h2><div id="name-list-container"><p>Noch keine Namen hinzugefügt.</p></div></div>
+    <hr style="margin: 2rem 0;">
+    
+    <div class="form-section">
+        <h2>Tool exportieren</h2>
+         <div><label for="group-size-input">Standard-Gruppengröße für das exportierte Tool:</label><input type="number" id="group-size-input" value="3" min="3"></div>
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <button id="generate-html-btn" class="primary-btn">HTML-Datei generieren</button>
+            <button id="copy-snippet-btn" class="tertiary-btn">Snippet kopieren</button>
+        </div>
+        <p class="info-text" style="margin-top: 1rem; text-align: center;">"HTML-Datei" erzeugt eine eigenständige Datei mit eigenem Design. <br>
+        "Snippet kopieren" kopiert den gesamten HTML/CSS/JS-Code für das Tool in Ihre Zwischenablage. Fügen Sie ihn direkt in ein Moodle-Textfeld im HTML-Modus (&lt;/&gt;) ein.</p>
+    </div>
+</div>
+
+<!-- NEU: Sichtbare Fußzeile für den Editor -->
+<footer class="footer">
+    <p>
+        <strong>Random Pick & Group Generator</strong><br>
+        Editor & Erweiterung von Wolfgang Schneider | Ursprüngliches Script von Florian Dagner<br>
+        Dieses Werk ist lizenziert unter <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </p>
+</footer>
+
+
+<script>
+(function() {
+    // Kompletter Editor-JavaScript, unverändert...
+    let nameList = [], editIndex = null, selectedFile = null;
+    const newNameInput = document.getElementById('new-name-input'), addNameBtn = document.getElementById('add-name-btn'), nameListContainer = document.getElementById('name-list-container'), copySnippetBtn = document.getElementById('copy-snippet-btn'), generateHtmlBtn = document.getElementById('generate-html-btn'), groupSizeInput = document.getElementById('group-size-input'), importFileInput = document.getElementById('import-file-input'), importBtn = document.getElementById('import-btn'), fileNameDisplay = document.getElementById('file-name-display');
+    addNameBtn.addEventListener('click', addOrUpdateName); newNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addOrUpdateName(); }); generateHtmlBtn.addEventListener('click', generateAndDownloadHtml); copySnippetBtn.addEventListener('click', copyBootstrapSnippet); importFileInput.addEventListener('change', handleFileSelection); importBtn.addEventListener('click', processFileImport);
+    function addOrUpdateName() { const name = newNameInput.value.trim(); if (!name) return; if (editIndex !== null) { nameList[editIndex] = name; } else { nameList.push(name); } cancelEdit(); renderNameList(); newNameInput.focus(); }
+    function deleteName(event) { const index = parseInt(event.target.dataset.index, 10); if (index === editIndex) cancelEdit(); nameList.splice(index, 1); renderNameList(); }
+    function startEdit(event) { const index = parseInt(event.target.dataset.index, 10); editIndex = index; newNameInput.value = nameList[index]; addNameBtn.textContent = 'Name aktualisieren'; addNameBtn.classList.replace('secondary-btn', 'primary-btn'); newNameInput.focus(); }
+    function cancelEdit() { editIndex = null; newNameInput.value = ''; addNameBtn.textContent = 'Name hinzufügen'; addNameBtn.classList.replace('primary-btn', 'secondary-btn'); }
+    function renderNameList() { nameListContainer.innerHTML = nameList.length === 0 ? '<p>Noch keine Namen hinzugefügt.</p>' : ''; nameList.forEach((name, index) => { const item = document.createElement('div'); item.className = 'list-item'; item.innerHTML = `<span>${name.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</span><div><button class="edit-btn" data-index="${index}">Bearbeiten</button><button class="delete-btn" data-index="${index}">Löschen</button></div>`; nameListContainer.appendChild(item); }); nameListContainer.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', deleteName)); nameListContainer.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', startEdit)); }
+    function handleFileSelection(event) { selectedFile = event.target.files[0]; if (selectedFile) { fileNameDisplay.textContent = selectedFile.name; importBtn.disabled = false; } else { fileNameDisplay.textContent = 'Keine Datei ausgewählt.'; importBtn.disabled = true; } }
+    function processFileImport() { if (!selectedFile) return; const reader = new FileReader(); reader.onload = (e) => { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' }); const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName]; const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); let importedCount = 0, skippedCount = 0; rows.forEach(row => { if (row && row.length > 0) { const name = (row[0] || '').toString().trim(); if (name && !nameList.includes(name)) { nameList.push(name); importedCount++; } else if (name) { skippedCount++; } } }); if (importedCount > 0) renderNameList(); alert(`Import abgeschlossen!\n\nImportiert: ${importedCount} neue Namen.\nÜbersprungen (Duplikate): ${skippedCount}.`); } catch (error) { console.error("Fehler bei der Dateiverarbeitung:", error); alert("Datei konnte nicht verarbeitet werden."); } finally { importFileInput.value = ''; fileNameDisplay.textContent = 'Keine Datei ausgewählt.'; importBtn.disabled = true; selectedFile = null; } }; reader.readAsArrayBuffer(selectedFile); }
+    function getConfig() { if (nameList.length === 0) { alert("Bitte fügen Sie zuerst Namen zur Liste hinzu."); return null; } return { names: nameList, defaultGroupSize: parseInt(groupSizeInput.value, 10) || 3 }; }
+    function generateAndDownloadHtml() { const config = getConfig(); if (!config) return; const finalHtml = getStandaloneHtmlTemplate(JSON.stringify(config, null, 2)); const blob = new Blob([finalHtml], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Random_Picker_Tool.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href); }
+    function copyBootstrapSnippet() { const config = getConfig(); if (!config) return; const snippet = getBootstrapSnippetTemplate(JSON.stringify(config, null, 2)); navigator.clipboard.writeText(snippet).then(() => { alert('Snippet kopieren erfolgreich!'); }).catch(err => { console.error('Fehler beim Kopieren: ', err); alert('Kopieren fehlgeschlagen.'); }); }
+
+    // VORLAGE 1: FÜR "HTML-Datei generieren" (Standalone) - JETZT MIT FUSSZEILE
+    function getStandaloneHtmlTemplate(configJson) {
+        return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Random Picker</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;background-color:#f0f2f5;margin:0;padding:2rem;box-sizing:border-box}.tool-container{background:white;padding:2rem;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.1);text-align:center;width:100%;max-width:800px}.tabs{display:flex;border-bottom:2px solid #ddd;margin-bottom:1.5rem}.tab-btn{padding:10px 20px;border:none;background:transparent;cursor:pointer;font-size:1rem;font-weight:500;color:#555;border-bottom:3px solid transparent}.tab-btn.active{color:#1e3a8a;border-bottom-color:#1e3a8a}.tab-content{display:none}.tab-content.active{display:block;animation:fadeIn .5s}@keyframes fadeIn{from{opacity:0}to{opacity:1}}h1,h2{color:#172554;margin-top:0}#picker-result{min-height:80px;background:#f8fafc;border:2px dashed #e2e8f0;border-radius:8px;display:flex;justify-content:center;align-items:center;font-size:clamp(1.5rem,5vw,2.5rem);font-weight:700;color:#1e3a8a;margin:1.5rem 0;padding:1rem}button{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:500;font-size:1rem;transition:all .2s}.btn-start{background-color:#10b981;color:white}.btn-stop{background-color:#ef4444;color:white;display:none}.group-controls{display:flex;justify-content:center;align-items:center;gap:1rem;margin:1.5rem 0;flex-wrap:wrap}#group-result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;text-align:left;margin-top:1.5rem}.group-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:1rem}.group-card h3{font-size:1.1rem;color:#1e3a8a;margin:0 0 .5rem;padding-bottom:.5rem;border-bottom:1px solid #e2e8f0}.group-card ul{list-style-type:none;padding-left:0;margin:0}.group-card li{padding:.25rem 0;color:#475569}.tool-footer{text-align:center;font-size:.8rem;color:#777;margin-top:2rem;padding-top:1rem;border-top:1px solid #ddd;width:100%;max-width:800px}.tool-footer a{color:#1e3a8a}</style></head><body><div class="tool-container"><h1>Random Picker</h1><div class="tabs"><button class="tab-btn active" data-tab="picker">Einzelne Person</button><button class="tab-btn" data-tab="grouper">Gruppen bilden</button></div><div id="picker" class="tab-content active"><h2>Zufällige Person auswählen</h2><div id="picker-result">?</div><button id="start-btn" class="btn-start">Start</button><button id="stop-btn" class="btn-stop">Stop</button></div><div id="grouper" class="tab-content"><h2>Zufällige Gruppen bilden</h2><div class="group-controls"><label for="group-size-input">Personen pro Gruppe:</label><input type="number" id="group-size-input" value="3" min="3" style="width:80px;padding:8px"><button id="generate-groups-btn" class="btn-start">Gruppen erstellen</button></div><div id="group-result-grid"></div></div></div><footer class="tool-footer">Random Pick & Group Generator (W. Schneider, F. Dagner) | <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a></footer><script>const config=${configJson},names=config.names,tabButtons=document.querySelectorAll(".tab-btn"),tabContents=document.querySelectorAll(".tab-content");tabButtons.forEach(e=>{e.addEventListener("click",()=>{tabButtons.forEach(e=>{e.classList.remove("active")}),e.classList.add("active"),tabContents.forEach(e=>{e.classList.remove("active")}),document.getElementById(e.dataset.tab).classList.add("active")})});const pickerResult=document.getElementById("picker-result"),startBtn=document.getElementById("start-btn"),stopBtn=document.getElementById("stop-btn");let intervalHandle=null;startBtn.addEventListener("click",()=>{0===names.length?pickerResult.textContent="Keine Namen!":(startBtn.style.display="none",stopBtn.style.display="inline-block",(()=>{let e=0;intervalHandle=setInterval(()=>{pickerResult.textContent=names[e++%names.length]},50)})())}),stopBtn.addEventListener("click",()=>{clearInterval(intervalHandle),startBtn.style.display="inline-block",stopBtn.style.display="none"});const generateGroupsBtn=document.getElementById("generate-groups-btn"),groupSizeInput=document.getElementById("group-size-input"),groupResultGrid=document.getElementById("group-result-grid");groupSizeInput.value=config.defaultGroupSize,generateGroupsBtn.addEventListener("click",()=>{const e=3,t=parseInt(groupSizeInput.value,10);if(isNaN(t)||t<e)return void alert("Gruppengröße muss mindestens "+e+" sein.");if(names.length<e)return void(groupResultGrid.innerHTML='<p style="color: #ef4444;">Nicht genügend Personen für eine Gruppe.</p>');const o=[...names];for(let e=o.length-1;e>0;e--){const t=Math.floor(Math.random()*(e+1));[o[e],o[t]]=[o[t],o[e]]}let r=[];for(let e=0;e<o.length;e+=t)r.push(o.slice(e,e+t));r.length>1&&r[r.length-1].length<e&&r.pop().forEach((e,t)=>{r[t%r.length].push(e)}),groupResultGrid.innerHTML="",r.forEach((e,t)=>{const o=document.createElement("div");o.className="group-card",o.innerHTML=\`<h3>Gruppe \${t+1}</h3><ul>\${e.map(e=>\`<li>\${e.replace(/</g,"&lt;")}</li>\`).join("")}</ul>\`,groupResultGrid.appendChild(o)})});<\/script></body></html>`;
+    }
+
+    // VORLAGE 2: FÜR "Snippet kopieren" (Bootstrap-kompatibel mit Korrektur) - JETZT MIT FUSSZEILE
+    function getBootstrapSnippetTemplate(configJson) {
+        const uniqueId = 'tool_' + Date.now();
+        return `<!-- Start: Random Pick & Group Tool (Bootstrap-kompatibel) -->
+<style>#${uniqueId} .nav-item { list-style-type: none !important; }</style>
+<div class="container-fluid my-4" id="${uniqueId}">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#picker-pane-${uniqueId}" type="button" role="tab">Einzelne Person</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#grouper-pane-${uniqueId}" type="button" role="tab">Gruppen bilden</button></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active p-3 border border-top-0" id="picker-pane-${uniqueId}" role="tabpanel">
+            <h4 class="mt-2">Zufällige Person auswählen</h4>
+            <div class="alert alert-primary text-center my-3" style="font-size: 2rem; font-weight: bold; min-height: 90px; display: flex; align-items: center; justify-content: center;">?</div>
+            <div class="text-center"><button class="btn btn-success">Start</button><button class="btn btn-danger" style="display: none;">Stop</button></div>
+        </div>
+        <div class="tab-pane fade p-3 border border-top-0" id="grouper-pane-${uniqueId}" role="tabpanel">
+            <h4 class="mt-2">Zufällige Gruppen bilden</h4>
+            <div class="d-flex justify-content-center align-items: center my-3 gap-3 flex-wrap">
+                <label class="form-label mb-0">Personen pro Gruppe:</label>
+                <input type="number" class="form-control" style="width: 80px;" value="3" min="3">
+                <button class="btn btn-success">Gruppen erstellen</button>
+            </div>
+            <div class="row g-3 mt-3"></div>
+        </div>
+    </div>
+    <div class="text-center small text-muted mt-3 pt-3 border-top">
+        Random Pick & Group Generator (W. Schneider, F. Dagner) | <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>
+    </div>
+</div>
+<script>
+(function() {
+    const config = ${configJson};
+    const names = config.names;
+    const toolRoot = document.getElementById('${uniqueId}');
+    if (!toolRoot) return;
+
+    const pickerTabBtn = toolRoot.querySelector('[data-bs-target="#picker-pane-${uniqueId}"]');
+    const grouperTabBtn = toolRoot.querySelector('[data-bs-target="#grouper-pane-${uniqueId}"]');
+    const pickerPane = toolRoot.querySelector('#picker-pane-${uniqueId}');
+    const grouperPane = toolRoot.querySelector('#grouper-pane-${uniqueId}');
+    
+    pickerTabBtn.addEventListener('click', (e) => { e.preventDefault(); pickerTabBtn.classList.add('active'); grouperTabBtn.classList.remove('active'); pickerPane.classList.add('show', 'active'); grouperPane.classList.remove('show', 'active'); });
+    grouperTabBtn.addEventListener('click', (e) => { e.preventDefault(); grouperTabBtn.classList.add('active'); pickerTabBtn.classList.remove('active'); grouperPane.classList.add('show', 'active'); pickerPane.classList.remove('show', 'active'); });
+    
+    let intervalHandle = null;
+    const pickerResult = pickerPane.querySelector('.alert');
+    const startBtn = pickerPane.querySelector('.btn-success');
+    const stopBtn = pickerPane.querySelector('.btn-danger');
+    startBtn.addEventListener('click', () => { if(names.length === 0){ pickerResult.textContent = 'Keine Namen!'; return; } startBtn.style.display = 'none'; stopBtn.style.display = 'inline-block'; let i = 0; intervalHandle = setInterval(() => { pickerResult.textContent = names[i++ % names.length]; }, 50); });
+    stopBtn.addEventListener('click', () => { clearInterval(intervalHandle); startBtn.style.display = 'inline-block'; stopBtn.style.display = 'none'; });
+
+    const generateGroupsBtn = grouperPane.querySelector('.btn-success');
+    const groupSizeInput = grouperPane.querySelector('input[type=number]');
+    const groupResultGrid = grouperPane.querySelector('.row');
+    groupSizeInput.value = config.defaultGroupSize;
+    generateGroupsBtn.addEventListener('click', () => {
+        const MIN_GROUP_SIZE = 3; const groupSize = parseInt(groupSizeInput.value, 10);
+        if (isNaN(groupSize) || groupSize < MIN_GROUP_SIZE) { alert("Gruppengröße muss mindestens " + MIN_GROUP_SIZE + " sein."); return; }
+        if (names.length < MIN_GROUP_SIZE) { groupResultGrid.innerHTML = '<div class="col-12"><div class="alert alert-danger">Nicht genügend Personen für eine Gruppe.</div></div>'; return; }
+        const shuffled = [...names];
+        for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
+        let groups = [];
+        for (let i = 0; i < shuffled.length; i += groupSize) { groups.push(shuffled.slice(i, i + groupSize)); }
+        if (groups.length > 1 && groups[groups.length - 1].length < MIN_GROUP_SIZE) { const leftover = groups.pop(); leftover.forEach((m, i) => groups[i % groups.length].push(m)); }
+        groupResultGrid.innerHTML = '';
+        groups.forEach((groupMembers, index) => {
+            const listItems = groupMembers.map(m => \`<li class="list-group-item">\${m.replace(/</g, "&lt;")}</li>\`).join('');
+            groupResultGrid.innerHTML += \`<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100"><div class="card-header fw-bold">Gruppe \${index + 1}</div><ul class="list-group list-group-flush">\${listItems}</ul></div></div>\`;
+        });
+    });
+})();
+<\/script>
+<!-- End: Random Pick & Group Tool -->`;
+    }
+
+    renderNameList();
+})();
+</script>
+
+</body>
+</html>
