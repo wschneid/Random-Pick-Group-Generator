@@ -445,7 +445,10 @@ label.field{display:flex;flex-direction:column;gap:6px}
         <button class="btn ghost" id="resetRoundBtn">Runde neu starten</button>
       </div>
       <div class="sep"></div>
-      <p class="eyebrow">Zuletzt gezogen</p>
+      <div class="spread" style="margin-bottom:9px">
+        <p class="eyebrow" style="margin:0">Zuletzt gezogen</p>
+        <button class="btn ghost" id="clearHistoryBtn" style="margin-left:auto;padding:5px 12px;font-size:.82rem">Verlauf löschen</button>
+      </div>
       <div class="history" id="history"></div>
     </div>
   </section>
@@ -534,10 +537,12 @@ label.field{display:flex;flex-direction:column;gap:6px}
     <div class="card">
       <div class="card-head"><h2>Sichern</h2></div>
       <div class="spread">
-        <button class="btn primary" id="exportHtmlBtn">Als HTML-Datei sichern</button>
+        <button class="btn primary" id="exportHtmlBtn">Diese Klasse sichern</button>
+        <button class="btn" id="exportAllHtmlBtn">Alle Klassen sichern</button>
+        <span style="flex:1"></span>
         <button class="btn" id="exportTxtBtn">Namen als Textdatei</button>
       </div>
-      <p class="hint">Die HTML-Datei enthält alle Klassen und dieses Tool. Sie läuft ohne Internet, per Doppelklick, auf jedem Rechner — und ist zugleich deine Sicherungskopie.</p>
+      <p class="hint">Die HTML-Datei enthält das Tool und die Namen. Sie läuft ohne Internet, per Doppelklick, auf jedem Rechner — und ist zugleich deine Sicherungskopie. <strong>Gesichert wird nur die gerade gewählte Klasse.</strong> Eine Datei mit allen Klassen gibst du besser nicht aus der Hand.</p>
     </div>
 
     <div class="card">
@@ -781,6 +786,7 @@ function renderPickMeta(){
 
   var h = $("history"); h.innerHTML = "";
   var hist = (c.history || []).slice(0, 12);
+  $("clearHistoryBtn").disabled = !hist.length;
   if(!hist.length){ h.appendChild(el("span","muted","Noch niemand gezogen.")); return; }
   hist.forEach(function(n, i){ h.appendChild(el("span","chip-small" + (i === 0 ? " first" : ""), n)); });
 }
@@ -1021,14 +1027,36 @@ function download(filename, content, mime){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} }, 1500);
 }
-function exportHtml(){
+/* Aus der Sicherung geht nur heraus, was auch hinein soll. Voreinstellung
+   ist die gewählte Klasse allein — eine Datei mit sämtlichen Namen aller
+   Klassen entsteht nur auf ausdrücklichen Wunsch. */
+function stateForExport(onlyActive){
   S.savedAt = Date.now();
-  var json = JSON.stringify(S).replace(/</g, "\\u003c");
+  if(!onlyActive) return S;
+  var c = cls();
+  var slim = {
+    version: S.version,
+    savedAt: S.savedAt,
+    activeClass: c.id,
+    classes: [c],
+    options: S.options,
+    stats: {},
+    lastGroups: {}
+  };
+  if(S.stats[c.id]) slim.stats[c.id] = S.stats[c.id];
+  if(S.lastGroups[c.id]) slim.lastGroups[c.id] = S.lastGroups[c.id];
+  return slim;
+}
+function exportHtml(onlyActive){
+  var json = JSON.stringify(stateForExport(onlyActive)).replace(/</g, "\\u003c");
   var out = PRISTINE.replace(/<script id="embedded-data"[^>]*>[\s\S]*?<\/script>/,
     function(){ return '<script id="embedded-data" type="application/json">' + json + '<\/script>'; });
   var stamp = new Date().toISOString().slice(0,10);
-  download("lotse-" + slug(cls().name) + "-" + stamp + ".html", out, "text/html;charset=utf-8");
-  toast("HTML-Datei gesichert — sie enthält alle Klassen.");
+  var base = onlyActive ? slug(cls().name) : "alle-klassen";
+  download("lotse-" + base + "-" + stamp + ".html", out, "text/html;charset=utf-8");
+  toast(onlyActive
+    ? "Gesichert — die Datei enthält nur „" + cls().name + "“."
+    : "Gesichert — die Datei enthält alle " + S.classes.length + " Klassen.");
 }
 function slug(s){
   return (s||"klasse").toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
@@ -1275,7 +1303,22 @@ $("allPresentBtn").addEventListener("click", function(){
 $("resetStatsBtn").addEventListener("click", function(){
   S.stats[cls().id] = {}; save(); renderStats(); toast("Zählung zurückgesetzt.");
 });
-$("exportHtmlBtn").addEventListener("click", exportHtml);
+$("exportHtmlBtn").addEventListener("click", function(){ exportHtml(true); });
+$("exportAllHtmlBtn").addEventListener("click", function(){
+  if(S.classes.length > 1 && !confirm(
+      "Die Datei enthält dann alle " + S.classes.length + " Klassen mit sämtlichen Namen.\n\n" +
+      "Als eigene Sicherungskopie ist das richtig. Zum Weitergeben nicht.\n\nWirklich alle sichern?"))
+    return;
+  exportHtml(false);
+});
+$("clearHistoryBtn").addEventListener("click", function(){
+  var c = cls();
+  if(!(c.history && c.history.length)) return;
+  c.history = [];
+  // "Zurücklegen" soll den gelöschten Verlauf nicht wieder heraufholen.
+  if(undoSnap) undoSnap.history = [];
+  save(); renderPickMeta(); toast("Verlauf gelöscht.");
+});
 $("exportTxtBtn").addEventListener("click", function(){
   var c = cls();
   download(slug(c.name) + ".txt", c.students.map(function(s){ return s.name; }).join("\n"));
