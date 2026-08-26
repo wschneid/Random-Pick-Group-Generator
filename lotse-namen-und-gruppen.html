@@ -352,8 +352,10 @@ label.field{display:flex;flex-direction:column;gap:6px}
 .sep{height:1px;background:var(--line);margin:16px 0}
 .colophon{
   margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
-  color:var(--mist);font-size:.82rem;line-height:1.6;max-width:62ch
+  color:var(--mist);font-size:.82rem;line-height:1.6
 }
+.colophon p{margin:0;max-width:64ch}
+.colophon .copyright{margin-top:14px;font-size:.8rem;letter-spacing:.01em}
 .sr-only{
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;
   overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0
@@ -565,9 +567,15 @@ label.field{display:flex;flex-direction:column;gap:6px}
   </section>
 
   <footer class="colophon no-print">
-    Lotse arbeitet ausschließlich in deinem Browser. Es lädt nichts aus dem
-    Internet nach, bindet keine fremden Dienste ein und sendet keine Daten
-    weiter. Namen bleiben auf diesem Rechner, bis du sie löschst.
+    <p>
+      Lotse arbeitet ausschließlich in deinem Browser: nichts wird aus dem
+      Internet nachgeladen, kein fremder Dienst eingebunden, nichts an Dritte
+      gesendet. Die Namen liegen im Speicher dieses Browserprofils — auf einem
+      gemeinsam genutzten Rechner sieht sie also auch, wer das Profil nach dir
+      benutzt. Werden die Browserdaten gelöscht, sind sie weg; sichere sie
+      vorher über „Diese Klasse sichern“.
+    </p>
+    <p class="copyright">© Wolfgang Schneider 2026</p>
   </footer>
 </div>
 
