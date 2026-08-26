@@ -8,11 +8,6 @@
 <!-- Bewusst ohne Web-Schriften: keine Anfrage verlässt diesen Rechner.
      Ein Aufruf bei Google Fonts würde die IP-Adresse der Nutzer übertragen. -->
 <style>
-/* ============================================================
-   OZEAN — Designtokens
-   Eine Tiefenstaffelung: abyss (Grund) → trench → deep (Karten)
-   → shelf (erhöht) → shelf-2 (aktiv). Licht kommt immer von oben.
-   ============================================================ */
 :root{
   color-scheme:dark;
 
@@ -48,8 +43,6 @@
   --r-lg:22px;
 
   /* Nur Schriften, die auf dem Rechner schon liegen. */
-  /* Georgia zuerst: auf Windows und macOS vorhanden, kräftig genug,
-     um am Beamer aus der letzten Reihe lesbar zu bleiben. */
   --display:Georgia,"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,
             "Liberation Serif","DejaVu Serif",serif;
   --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,
@@ -697,9 +690,7 @@ function parseNames(text){
   if(!lines.length) return [];
 
   /* "Nachname, Vorname" nur dann, wenn wirklich jede Zeile so aussieht und
-     es mehrere Zeilen gibt. Vorher entschied das die Zeile für sich allein,
-     dadurch wurde aus der einzelnen Zeile "Lena, Noah" ein Mensch namens
-     "Noah Lena" — und aus einer gemischten Liste ein Durcheinander. */
+     es mehrere Zeilen gibt. */
   var surnameFirst = lines.length > 1 && lines.every(function(l){
     if(/[;\t]/.test(l)) return false;
     var p = l.split(",");
@@ -764,9 +755,6 @@ function beep(freq, dur, vol){
 }
 
 /* ---------- Ziehen ---------- */
-/* Drei Zustände statt eines Flags. Vorher blieb "spinning" während der
-   Auslaufphase true, also hat jeder weitere Druck auf Stopp den Auslauf
-   von vorn gestartet — das Rad ließ sich nicht anhalten. */
 var IDLE = 0, SPIN = 1, STOPPING = 2;
 var phase = IDLE, timer = null, lastDrawn = null, pendingTarget = null, undoSnap = null;
 function drawnList(){
@@ -1114,15 +1102,13 @@ function renderChips(){
     });
     chip.appendChild(x);
     /* Anwesenheit direkt am Element umschalten statt die ganze Liste neu
-       zu bauen. Vorher wurde der Chip zwischen erstem und zweitem Klick
-       ersetzt — deshalb kam der Doppelklick zum Umbenennen nie an. */
+       zu bauen.  */
     chip.addEventListener("click", function(){
       s.present = !s.present;
       chip.classList.toggle("away", !s.present);
       save(); renderChipMeta(); renderPickMeta();
     });
     chip.addEventListener("dblclick", function(){
-      // Die beiden Klicks davor heben sich gegenseitig auf, der Zustand stimmt also.
       var neu = prompt("Name ändern:", s.name);
       if(neu && neu.trim() && neu.trim() !== s.name){ s.name = neu.trim(); save(); renderAll(); }
     });
