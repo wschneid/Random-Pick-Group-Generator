@@ -8,101 +8,169 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter+Tight:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ============ Ocean tokens ============ */
+/* ============================================================
+   OZEAN — Designtokens
+   Eine Tiefenstaffelung: abyss (Grund) → trench → deep (Karten)
+   → shelf (erhöht) → shelf-2 (aktiv). Licht kommt immer von oben.
+   ============================================================ */
 :root{
-  --abyss:#031A27;
-  --deep:#062B3E;
-  --shelf:#0A3A51;
-  --shelf-2:#0E4762;
-  --line:rgba(122,226,211,.16);
-  --line-strong:rgba(122,226,211,.34);
-  --current:#12A39B;
-  --foam:#6FE3D0;
+  color-scheme:dark;
+
+  /* Tiefen */
+  --abyss:#02131F;
+  --trench:#04202F;
+  --deep:#07304A;
+  --shelf:#0B3E5B;
+  --shelf-2:#10506F;
+
+  /* Kanten */
+  --line:rgba(127,233,214,.14);
+  --line-strong:rgba(127,233,214,.32);
+
+  /* Strömung & Licht */
+  --current:#12A79E;
+  --current-deep:#0B7C77;
+  --foam:#7FE9D6;
+  --lagoon:#41B6E6;
+  --sun:#FFD79A;
+  --coral:#FF8C74;
+
+  /* Text */
   --spray:#EAF7F8;
-  --mist:#9FC2CF;
-  --coral:#FF8A72;
-  --sun:#FFD48A;
-  --shadow:0 18px 44px rgba(0,0,0,.38);
-  --r:14px;
+  --mist:#9FC3D1;
+
+  /* Form */
+  --shadow:0 20px 48px rgba(0,10,18,.46);
+  --shadow-sm:0 8px 20px rgba(0,10,18,.30);
+  --sheen:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,0) 52%);
+  --r:16px;
+  --r-sm:11px;
+  --r-lg:22px;
+
   --display:"Fraunces","Iowan Old Style",Georgia,serif;
   --body:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"Space Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
+
+/* ---- Flachwasser: das helle Design ---- */
 [data-theme="shallow"]{
-  --abyss:#EDF6F7;
+  color-scheme:light;
+  --abyss:#E7F3F5;
+  --trench:#F2F9FA;
   --deep:#FFFFFF;
   --shelf:#FFFFFF;
-  --shelf-2:#E2F0F2;
-  --line:rgba(6,43,62,.14);
-  --line-strong:rgba(6,43,62,.3);
-  --current:#0B7C77;
-  --foam:#0B7C77;
-  --spray:#062B3E;
-  --mist:#4E7383;
-  --coral:#D8503A;
-  --sun:#B07B18;
-  --shadow:0 14px 34px rgba(6,43,62,.12);
+  --shelf-2:#DCEEF1;
+  --line:rgba(7,48,74,.13);
+  --line-strong:rgba(7,48,74,.28);
+  --current:#0B837C;
+  --current-deep:#076A66;
+  --foam:#0B837C;
+  --lagoon:#1B87BE;
+  --sun:#A87516;
+  --coral:#CF4A33;
+  --spray:#07304A;
+  --mist:#547787;
+  --shadow:0 16px 38px rgba(7,48,74,.13);
+  --shadow-sm:0 6px 16px rgba(7,48,74,.09);
+  --sheen:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0) 52%);
 }
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
+
+/* Das hidden-Attribut muss immer gewinnen — sonst schlagen
+   Regeln wie .btn{display:inline-flex} die UA-Regel. */
+[hidden]{display:none !important}
+
 body{
   background:
-    radial-gradient(1100px 620px at 12% -8%, var(--shelf) 0%, transparent 62%),
-    radial-gradient(900px 520px at 92% 4%, var(--deep) 0%, transparent 58%),
-    var(--abyss);
+    radial-gradient(1200px 640px at 14% -12%, var(--shelf) 0%, transparent 60%),
+    radial-gradient(1000px 560px at 88% -4%, var(--trench) 0%, transparent 58%),
+    linear-gradient(180deg, var(--trench) 0%, var(--abyss) 55%);
   background-attachment:fixed;
+  background-color:var(--abyss);
   color:var(--spray);
   font-family:var(--body);
   font-size:16px;
   line-height:1.5;
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
+  position:relative;
 }
-.wrap{max-width:1120px;margin:0 auto;padding:22px 20px 72px}
 
-/* ============ Typo helpers ============ */
+/* Sonnenlicht, das durch die Oberfläche bricht */
+body::before{
+  content:"";position:fixed;inset:0 0 auto 0;height:70vh;pointer-events:none;z-index:0;
+  background:
+    linear-gradient(101deg, transparent 42%, rgba(127,233,214,.055) 48%, transparent 54%),
+    linear-gradient(76deg,  transparent 24%, rgba(65,182,230,.05)  30%, transparent 37%),
+    linear-gradient(93deg,  transparent 66%, rgba(255,215,154,.04) 71%, transparent 77%);
+  mix-blend-mode:screen;
+  animation:shafts 19s ease-in-out infinite alternate;
+}
+[data-theme="shallow"] body::before{opacity:.65;mix-blend-mode:multiply}
+@keyframes shafts{
+  from{transform:translateX(-2.5%) skewX(0deg);opacity:.85}
+  to  {transform:translateX(2.5%)  skewX(1.4deg);opacity:1}
+}
+
+.wrap{max-width:1120px;margin:0 auto;padding:22px 20px 72px;position:relative;z-index:1}
+
+/* ============ Typografie ============ */
 .eyebrow{
   font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;
   text-transform:uppercase;color:var(--mist);
 }
 h1,h2,h3{font-family:var(--display);font-weight:900;margin:0;letter-spacing:-.01em}
-h2{font-size:1.28rem;font-variation-settings:"opsz" 40}
+h2{font-size:1.3rem;font-variation-settings:"opsz" 40}
 h3{font-size:1rem;font-weight:700}
 
-/* ============ Header ============ */
+/* ============ Kopf ============ */
 header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-.mark{width:40px;height:40px;flex:0 0 auto}
-.brand h1{font-size:1.34rem;font-variation-settings:"opsz" 60;line-height:1.1}
-.brand p{margin:2px 0 0}
+.mark{width:42px;height:42px;flex:0 0 auto;filter:drop-shadow(0 3px 10px rgba(18,167,158,.35))}
+.brand h1{font-size:1.4rem;font-variation-settings:"opsz" 60;line-height:1.1}
+.brand p{margin:3px 0 0}
 .header-tools{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-/* ============ Controls ============ */
+/* ============ Bedienelemente ============ */
 button,select,input,textarea{font-family:inherit;font-size:1rem;color:inherit}
 .btn{
-  display:inline-flex;align-items:center;gap:8px;
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;
   background:var(--shelf);border:1px solid var(--line);color:var(--spray);
-  padding:9px 15px;border-radius:11px;cursor:pointer;
-  font-weight:600;font-size:.92rem;transition:border-color .15s,transform .12s,background .15s;
+  padding:9px 15px;border-radius:var(--r-sm);cursor:pointer;
+  font-weight:600;font-size:.92rem;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .15s,transform .12s,background .15s,box-shadow .15s;
+}
+.btn::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:var(--sheen);pointer-events:none
 }
 .btn:hover{border-color:var(--line-strong);background:var(--shelf-2)}
 .btn:active{transform:translateY(1px)}
 .btn.primary{
-  background:linear-gradient(180deg,var(--current),#0B7C77);
-  border-color:transparent;color:#fff;box-shadow:0 6px 18px rgba(18,163,155,.32)
+  background:linear-gradient(180deg,var(--current) 0%,var(--current-deep) 100%);
+  border-color:transparent;color:#fff;
+  box-shadow:0 10px 26px rgba(18,167,158,.34),inset 0 1px 0 rgba(255,255,255,.22)
 }
-[data-theme="shallow"] .btn.primary{box-shadow:0 6px 16px rgba(11,124,119,.24)}
-.btn.primary:hover{filter:brightness(1.08);background:linear-gradient(180deg,var(--current),#0B7C77)}
+[data-theme="shallow"] .btn.primary{box-shadow:0 8px 20px rgba(11,131,124,.28),inset 0 1px 0 rgba(255,255,255,.3)}
+.btn.primary:hover{filter:brightness(1.08)}
 .btn.danger{color:var(--coral)}
-.btn.ghost{background:transparent}
-.btn.big{padding:14px 30px;font-size:1.05rem;border-radius:13px}
+.btn.ghost{background:transparent;box-shadow:none}
+.btn.ghost:hover{background:var(--shelf)}
+.btn.big{padding:14px 30px;font-size:1.05rem;border-radius:14px}
 .btn.icon{padding:9px 11px}
-.btn[disabled]{opacity:.42;cursor:not-allowed}
+.btn[disabled]{opacity:.42;cursor:not-allowed;box-shadow:none}
+.btn[disabled]:hover{background:var(--shelf);border-color:var(--line)}
 :focus-visible{outline:3px solid var(--foam);outline-offset:2px;border-radius:8px}
 
 select,input[type=text],input[type=number],textarea{
-  background:var(--deep);border:1px solid var(--line);color:var(--spray);
-  padding:9px 12px;border-radius:11px;
+  background:var(--trench);border:1px solid var(--line);color:var(--spray);
+  padding:9px 12px;border-radius:var(--r-sm);
+  transition:border-color .15s,background .15s;
 }
+select,input[type=text],input[type=number]{height:42px;line-height:1.2}
+select:hover,input[type=text]:hover,input[type=number]:hover,textarea:hover{border-color:var(--line-strong)}
 [data-theme="shallow"] select,[data-theme="shallow"] input,[data-theme="shallow"] textarea{background:#fff}
 textarea{width:100%;min-height:120px;resize:vertical;line-height:1.6}
 label.field{display:flex;flex-direction:column;gap:6px}
@@ -117,33 +185,58 @@ label.field{display:flex;flex-direction:column;gap:6px}
   content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
   background:var(--mist);transition:transform .18s,background .18s
 }
-.switch input:checked + .track{background:var(--current);border-color:transparent}
+.switch input:checked + .track{
+  background:linear-gradient(180deg,var(--current),var(--current-deep));border-color:transparent
+}
 .switch input:checked + .track::after{transform:translateX(16px);background:#fff}
 .switch input:checked ~ span:last-child{color:var(--spray)}
 .switch input:focus-visible + .track{outline:3px solid var(--foam);outline-offset:2px}
 
-/* ============ Tabs ============ */
-.tabs{display:flex;gap:4px;padding:4px;background:var(--deep);border:1px solid var(--line);border-radius:14px;margin-bottom:18px;overflow:auto}
+/* ============ Reiter ============ */
+.tabs{
+  display:flex;gap:4px;padding:4px;background:var(--trench);
+  border:1px solid var(--line);border-radius:var(--r);margin-bottom:18px;overflow:auto;
+  box-shadow:var(--shadow-sm)
+}
 .tab{
   flex:1;min-width:118px;background:transparent;border:0;color:var(--mist);
-  padding:11px 14px;border-radius:11px;cursor:pointer;font-weight:600;font-size:.95rem;white-space:nowrap
+  padding:11px 14px;border-radius:var(--r-sm);cursor:pointer;font-weight:600;font-size:.95rem;
+  white-space:nowrap;transition:color .15s,background .15s
 }
-.tab[aria-selected="true"]{background:var(--shelf-2);color:var(--spray);box-shadow:inset 0 0 0 1px var(--line)}
-.pane[hidden]{display:none}
+.tab:hover{color:var(--spray)}
+.tab[aria-selected="true"]{
+  background:var(--shelf-2);color:var(--spray);
+  box-shadow:inset 0 0 0 1px var(--line),0 2px 10px rgba(0,0,0,.18)
+}
 
-.card{background:var(--deep);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.card{
+  position:relative;background:var(--deep);border:1px solid var(--line);
+  border-radius:var(--r);padding:18px;box-shadow:var(--shadow);overflow:hidden
+}
+.card::before{
+  content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line-strong),transparent);pointer-events:none
+}
 .card + .card{margin-top:16px}
 .card-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .card-head .eyebrow{margin-left:auto}
 
-/* ============ Stage (signature) ============ */
+/* ============ Bühne ============ */
 .stage{
-  position:relative;overflow:hidden;border-radius:20px;
+  position:relative;overflow:hidden;border-radius:var(--r-lg);
   border:1px solid var(--line);
-  background:linear-gradient(180deg,var(--deep) 0%,var(--shelf) 62%,var(--shelf-2) 100%);
+  background:linear-gradient(180deg,var(--trench) 0%,var(--deep) 48%,var(--shelf) 100%);
   padding:30px 22px 0;text-align:center;box-shadow:var(--shadow)
 }
-.stage .readout{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.stage::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:
+    linear-gradient(104deg,transparent 38%,rgba(127,233,214,.07) 45%,transparent 52%),
+    linear-gradient(72deg, transparent 60%,rgba(65,182,230,.06) 67%,transparent 74%);
+  mix-blend-mode:screen
+}
+[data-theme="shallow"] .stage::before{mix-blend-mode:multiply;opacity:.5}
+.stage .readout{position:relative;z-index:2;display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
 .name-slot{
   position:relative;z-index:2;display:flex;align-items:center;justify-content:center;
   min-height:min(30vh,220px);padding:18px 6px 6px
@@ -152,9 +245,10 @@ label.field{display:flex;flex-direction:column;gap:6px}
   font-family:var(--display);font-weight:900;font-variation-settings:"opsz" 144,"SOFT" 40;
   font-size:clamp(2.4rem,8.4vw,6.4rem);line-height:1.02;letter-spacing:-.02em;
   color:var(--spray);word-break:break-word;
+  text-shadow:0 6px 30px rgba(18,167,158,.22)
 }
-.name.idle{color:var(--mist);font-weight:700;font-size:clamp(1.4rem,3.4vw,2.2rem);letter-spacing:0}
-.name.spinning{opacity:.72;filter:blur(.4px)}
+.name.idle{color:var(--mist);font-weight:700;font-size:clamp(1.4rem,3.4vw,2.2rem);letter-spacing:0;text-shadow:none}
+.name.spinning{opacity:.7;filter:blur(.5px)}
 .ripple{
   position:absolute;left:50%;top:50%;width:min(46vw,320px);aspect-ratio:1;
   transform:translate(-50%,-50%) scale(.35);border-radius:50%;
@@ -165,11 +259,11 @@ label.field{display:flex;flex-direction:column;gap:6px}
 @keyframes surface{0%{opacity:.6;transform:translate(-50%,-50%) scale(.32)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}
 .landed .name{animation:rise .5s cubic-bezier(.2,.8,.25,1)}
 @keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
-.stage-actions{position:relative;z-index:2;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding-bottom:26px}
-.waves{position:absolute;left:0;bottom:-2px;width:200%;height:120px;z-index:0;pointer-events:none}
+.stage-actions{position:relative;z-index:2;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding-bottom:38px}
+.waves{position:absolute;left:0;bottom:-2px;width:200%;height:96px;z-index:0;pointer-events:none}
 .waves path{fill:var(--current)}
-.w1{opacity:.20;animation:drift 14s linear infinite}
-.w2{opacity:.13;animation:drift 22s linear infinite reverse}
+.w1{opacity:.22;animation:drift 14s linear infinite}
+.w2{opacity:.14;animation:drift 22s linear infinite reverse}
 @keyframes drift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 .history{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px;min-height:34px}
@@ -177,53 +271,52 @@ label.field{display:flex;flex-direction:column;gap:6px}
   font-size:.82rem;padding:5px 11px;border-radius:99px;
   background:var(--shelf);border:1px solid var(--line);color:var(--mist)
 }
-.chip-small.first{color:var(--spray);border-color:var(--line-strong)}
+.chip-small.first{color:var(--spray);border-color:var(--line-strong);box-shadow:0 0 0 3px rgba(127,233,214,.07)}
 
 /* ============ Chips (Klassenliste) ============ */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{
   display:inline-flex;align-items:center;gap:8px;padding:7px 8px 7px 13px;
   background:var(--shelf);border:1px solid var(--line);border-radius:99px;
-  cursor:pointer;user-select:none;font-size:.94rem;transition:border-color .15s,opacity .15s
+  cursor:pointer;user-select:none;font-size:.94rem;
+  transition:border-color .15s,opacity .15s,background .15s
 }
-.chip:hover{border-color:var(--line-strong)}
-.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--foam);flex:0 0 auto}
+.chip:hover{border-color:var(--line-strong);background:var(--shelf-2)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--foam);flex:0 0 auto;transition:background .15s}
 .chip.away{opacity:.5;text-decoration:line-through;text-decoration-color:var(--coral)}
 .chip.away .dot{background:var(--coral)}
 .chip .x{
   border:0;background:transparent;color:var(--mist);cursor:pointer;
-  font-size:1rem;line-height:1;padding:2px 5px;border-radius:6px
+  font-size:1rem;line-height:1;padding:2px 5px;border-radius:6px;transition:color .15s,background .15s
 }
-.chip .x:hover{color:var(--coral);background:var(--shelf-2)}
+.chip .x:hover{color:var(--coral);background:var(--trench)}
 
-/* ============ Groups ============ */
+/* ============ Gruppen ============ */
 .group-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:16px}
 .group{
   background:var(--shelf);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
-  animation:fadeup .4s backwards
+  box-shadow:var(--shadow-sm);animation:fadeup .4s backwards
 }
 @keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .group header{
   display:flex;align-items:center;gap:8px;margin:0;padding:11px 14px;
   background:var(--shelf-2);border-bottom:1px solid var(--line)
 }
-.group header .num{
-  font-family:var(--mono);font-size:.72rem;color:var(--foam);letter-spacing:.1em
-}
+.group header .num{font-family:var(--mono);font-size:.72rem;color:var(--foam);letter-spacing:.1em}
 .group header .count{margin-left:auto;font-family:var(--mono);font-size:.72rem;color:var(--mist)}
 .group ul{list-style:none;margin:0;padding:8px 0}
 .group li{padding:7px 14px;display:flex;align-items:baseline;gap:9px}
 .group li + li{border-top:1px dashed var(--line)}
 .group li .role{font-family:var(--mono);font-size:.66rem;color:var(--mist);margin-left:auto;text-align:right}
 
-/* ============ Stats ============ */
+/* ============ Statistik ============ */
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 20px;margin-top:6px}
 .stat{display:flex;align-items:center;gap:9px;font-size:.88rem}
 .stat .bar{flex:1;height:6px;border-radius:99px;background:var(--shelf-2);overflow:hidden}
-.stat .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--current),var(--foam))}
+.stat .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--current),var(--foam));transition:width .35s cubic-bezier(.2,.8,.25,1)}
 .stat .n{font-family:var(--mono);font-size:.76rem;color:var(--mist);min-width:1.5em;text-align:right}
 
-/* ============ Misc ============ */
+/* ============ Sonstiges ============ */
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
 .row.tight{gap:8px}
 .spread{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
@@ -233,40 +326,51 @@ label.field{display:flex;flex-direction:column;gap:6px}
   border:1px dashed var(--line-strong);border-radius:var(--r);padding:26px;text-align:center;color:var(--mist)
 }
 .notice{
-  background:rgba(255,138,114,.14);
-  border:1px solid rgba(255,138,114,.42);
   background:color-mix(in srgb,var(--coral) 14%,transparent);
-  border-color:color-mix(in srgb,var(--coral) 40%,transparent);
+  border:1px solid color-mix(in srgb,var(--coral) 40%,transparent);
   color:var(--spray);padding:11px 14px;border-radius:12px;font-size:.9rem;margin-bottom:14px
+}
+@supports not (background:color-mix(in srgb,red 10%,transparent)){
+  .notice{background:rgba(255,140,116,.14);border-color:rgba(255,140,116,.42)}
 }
 .toast{
   position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);
   background:var(--shelf-2);border:1px solid var(--line-strong);color:var(--spray);
   padding:11px 18px;border-radius:12px;box-shadow:var(--shadow);
-  opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:99;font-size:.92rem
+  opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:99;font-size:.92rem;
+  max-width:min(92vw,520px);text-align:center
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.dropzone.over{border-color:var(--foam);background:rgba(111,227,208,.08)}
+.dropzone{transition:border-color .15s,background .15s}
+.dropzone.over{border-color:var(--foam);background:var(--shelf)}
 .sep{height:1px;background:var(--line);margin:16px 0}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0
+}
 
-/* ============ Fullscreen / Beamer ============ */
+/* ============ Vollbild / Beamer ============ */
 :fullscreen{background:var(--abyss);padding:0}
 :fullscreen .card{display:none}
 :fullscreen .stage{border-radius:0;height:100vh;display:flex;flex-direction:column;justify-content:center}
 :fullscreen .name-slot{flex:1;min-height:0}
 :fullscreen .name{font-size:clamp(3rem,13vw,11rem)}
 :fullscreen .stage-actions{padding-bottom:40px}
+:-webkit-full-screen .stage{border-radius:0;height:100vh}
 
 @media (max-width:640px){
   .wrap{padding:16px 14px 60px}
   .header-tools{width:100%;margin-left:0}
   .tab{min-width:0;font-size:.88rem;padding:10px 6px}
+  .btn.big{padding:12px 22px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  body::before{animation:none}
 }
 @media print{
   body{background:#fff;color:#000}
+  body::before{display:none}
   .wrap{max-width:none;padding:0}
   .wrap > header,.tabs,.card,.hint,.toast,.stage,.no-print{display:none !important}
   .print-only{display:block !important}
@@ -320,7 +424,7 @@ label.field{display:flex;flex-direction:column;gap:6px}
       </div>
       <div class="stage-actions">
         <button class="btn primary big" id="spinBtn">Ziehen</button>
-        <button class="btn big" id="stopBtn" hidden>Stopp</button>
+        <button class="btn big" id="stopBtn" title="Nochmal drücken landet sofort" hidden>Stopp</button>
         <button class="btn ghost" id="backBtn" hidden>Zurücklegen</button>
       </div>
       <svg class="waves" viewBox="0 0 2880 120" preserveAspectRatio="none" aria-hidden="true">
@@ -332,7 +436,7 @@ label.field{display:flex;flex-direction:column;gap:6px}
     <div class="card" style="margin-top:16px">
       <div class="card-head">
         <h2>Einstellungen</h2>
-        <span class="eyebrow">Leertaste startet und stoppt</span>
+        <span class="eyebrow">Leertaste startet und stoppt · F für Vollbild</span>
       </div>
       <div class="spread">
         <label class="switch"><input type="checkbox" id="optNoRepeat"><span class="track"></span><span>Jede Person einmal pro Runde</span></label>
@@ -415,7 +519,7 @@ label.field{display:flex;flex-direction:column;gap:6px}
       <div class="card-head"><h2>Liste importieren</h2></div>
       <label class="field">
         <span class="eyebrow">Namen einfügen — eine Zeile pro Person, oder mit Komma getrennt</span>
-        <textarea id="importArea" placeholder="Lena Berger&#10;Noah Fischer&#10;Sophie Wagner&#10;&#10;Auch möglich: Berger, Lena"></textarea>
+        <textarea id="importArea" placeholder="Lena Berger&#10;Noah Fischer&#10;Sophie Wagner&#10;&#10;Mehrzeilig auch: Berger, Lena"></textarea>
       </label>
       <div class="spread" style="margin-top:12px">
         <button class="btn primary" id="importAddBtn">Zur Klasse hinzufügen</button>
@@ -424,7 +528,7 @@ label.field{display:flex;flex-direction:column;gap:6px}
         <button class="btn" id="fileBtn">Datei wählen (.txt, .csv)</button>
         <input type="file" id="fileInput" accept=".txt,.csv,text/plain,text/csv" hidden>
       </div>
-      <p class="hint">Du kannst eine Datei auch direkt auf dieses Feld ziehen. Doppelte Namen werden übersprungen.</p>
+      <p class="hint">Du kannst eine Datei auch direkt auf dieses Feld ziehen. Doppelte Namen werden übersprungen. Stehen mehrere Zeilen da und hat <em>jede</em> genau ein Komma, wird „Berger, Lena“ als Nachname und Vorname gelesen. Sonst trennt das Komma zwischen Namen.</p>
     </div>
 
     <div class="card">
@@ -562,23 +666,38 @@ function roster(){
 function parseNames(text){
   if(!text) return [];
   var lines = text.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+  if(!lines.length) return [];
+
+  // Kopfzeile einer CSV-Datei wegwerfen, sonst wird sie zur Person.
+  if(lines.length > 1 && /^\s*(nach|vor)name\s*[;,\t]\s*(nach|vor)name\s*$/i.test(lines[0]))
+    lines = lines.slice(1);
+  else if(lines.length > 1 && /^\s*name\s*$/i.test(lines[0]))
+    lines = lines.slice(1);
+  if(!lines.length) return [];
+
+  /* "Nachname, Vorname" nur dann, wenn wirklich jede Zeile so aussieht und
+     es mehrere Zeilen gibt. Vorher entschied das die Zeile für sich allein,
+     dadurch wurde aus der einzelnen Zeile "Lena, Noah" ein Mensch namens
+     "Noah Lena" — und aus einer gemischten Liste ein Durcheinander. */
+  var surnameFirst = lines.length > 1 && lines.every(function(l){
+    if(/[;\t]/.test(l)) return false;
+    var p = l.split(",");
+    return p.length === 2 && p[0].trim() && p[1].trim();
+  });
+
   var out = [];
-  if(lines.length > 1){
-    lines.forEach(function(line){
-      var parts = line.split(",");
-      if(parts.length === 2 && parts[0].trim() && parts[1].trim()){
-        out.push(parts[1].trim() + " " + parts[0].trim());   // "Berger, Lena" -> "Lena Berger"
-      } else if(parts.length > 2){
-        parts.forEach(function(p){ if(p.trim()) out.push(p.trim()); });
-      } else {
-        out.push(line.replace(/\t+/g," ").trim());
-      }
-    });
-  } else if(lines.length === 1){
-    out = lines[0].split(/[;,\t]/).map(function(p){ return p.trim(); }).filter(Boolean);
-  }
-  return out.map(function(n){ return n.replace(/\s+/g," ").trim(); })
-            .filter(function(n){ return n.length > 0 && n.length < 60; });
+  lines.forEach(function(line){
+    if(surnameFirst){
+      var p = line.split(",");
+      out.push(p[1].trim() + " " + p[0].trim());
+    } else {
+      line.split(/[;,\t]/).forEach(function(part){
+        if(part.trim()) out.push(part.trim());
+      });
+    }
+  });
+  return out.map(function(x){ return x.replace(/\s+/g," ").trim(); })
+            .filter(function(x){ return x.length > 0 && x.length < 60; });
 }
 function addStudents(names, replace){
   var c = cls();
@@ -598,20 +717,37 @@ function addStudents(names, replace){
 
 /* ---------- Ton ---------- */
 var AC = null;
+function audioCtx(){
+  if(AC) return AC;
+  var Ctx = window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return null;
+  try{ AC = new Ctx(); }catch(e){ AC = null; }
+  return AC;
+}
+/* Browser starten den Kontext oft angehalten. Er darf nur aus einer
+   echten Nutzergeste heraus fortgesetzt werden — sonst bleibt es stumm. */
+function resumeAudio(){
+  var a = audioCtx();
+  if(a && a.state === "suspended"){ try{ a.resume(); }catch(e){} }
+}
 function beep(freq, dur, vol){
   if(!S.options.sound) return;
+  var a = audioCtx(); if(!a) return;
   try{
-    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-    var o = AC.createOscillator(), g = AC.createGain();
+    var o = a.createOscillator(), g = a.createGain();
     o.type = "sine"; o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, AC.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + dur);
-    o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime + dur);
+    g.gain.setValueAtTime(vol, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+    o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur);
   }catch(e){}
 }
 
 /* ---------- Ziehen ---------- */
-var spinning = false, timer = null, lastDrawn = null;
+/* Drei Zustände statt eines Flags. Vorher blieb "spinning" während der
+   Auslaufphase true, also hat jeder weitere Druck auf Stopp den Auslauf
+   von vorn gestartet — das Rad ließ sich nicht anhalten. */
+var IDLE = 0, SPIN = 1, STOPPING = 2;
+var phase = IDLE, timer = null, lastDrawn = null, pendingTarget = null, undoSnap = null;
 function drawnList(){
   var c = cls();
   if(!c.drawn) c.drawn = [];
@@ -633,36 +769,66 @@ function renderPickMeta(){
   $("poolLabel").textContent = S.options.noRepeat
     ? Math.max(r.length - d.length, 0) + " von " + r.length + " im Topf"
     : r.length + " im Topf";
-  $("spinBtn").disabled = r.length === 0;
-  $("backBtn").hidden = !lastDrawn;
+  /* Während des Laufs die Knöpfe in Ruhe lassen — sonst taucht mitten
+     im Ziehen wieder "Ziehen" oder "Zurücklegen" auf. */
+  if(phase === IDLE){
+    $("spinBtn").hidden = false;
+    $("spinBtn").disabled = r.length === 0;
+    $("stopBtn").hidden = true;
+    $("stopBtn").disabled = false;
+    $("backBtn").hidden = !lastDrawn;
+  }
 
   var h = $("history"); h.innerHTML = "";
   var hist = (c.history || []).slice(0, 12);
   if(!hist.length){ h.appendChild(el("span","muted","Noch niemand gezogen.")); return; }
   hist.forEach(function(n, i){ h.appendChild(el("span","chip-small" + (i === 0 ? " first" : ""), n)); });
 }
+function focusIfLoose(btn){
+  var a = document.activeElement;
+  if(!a || a === document.body || a.hidden) btn.focus();
+}
 function startSpin(){
+  if(phase !== IDLE) return;
   var p = pool();
   if(!p.length){ toast("Keine Namen in dieser Klasse."); return; }
-  spinning = true;
-  $("spinBtn").hidden = true; $("stopBtn").hidden = false; $("backBtn").hidden = true;
+  resumeAudio();
+  phase = SPIN;
+  $("spinBtn").hidden = true;
+  $("stopBtn").hidden = false; $("stopBtn").disabled = false;
+  $("backBtn").hidden = true;
   $("stage").classList.remove("landed");
-  var out = $("nameOut"); out.classList.remove("idle"); out.classList.add("spinning");
+  var out = $("nameOut");
+  out.classList.remove("idle"); out.classList.add("spinning");
+  /* Beim Rattern nicht jeden Namen vorlesen lassen. */
+  out.setAttribute("aria-live", "off");
+  focusIfLoose($("stopBtn"));
   var i = Math.floor(Math.random() * p.length);
   (function tick(){
-    out.textContent = p[i++ % p.length].name;
+    if(phase !== SPIN) return;
+    var cur = pool();
+    if(!cur.length){ abortSpin("Es ist niemand mehr im Topf."); return; }
+    out.textContent = cur[i++ % cur.length].name;
     beep(520 + (i % 5) * 40, .03, .05);
     timer = setTimeout(tick, 55);
   })();
 }
 function stopSpin(){
-  if(!spinning) return;
+  /* Zweiter Druck während des Auslaufs: sofort landen. */
+  if(phase === STOPPING){
+    if(pendingTarget){ clearTimeout(timer); land(pendingTarget); }
+    return;
+  }
+  if(phase !== SPIN) return;
   clearTimeout(timer);
   var p = pool();
+  if(!p.length){ abortSpin("Es ist niemand mehr im Topf."); return; }
+  phase = STOPPING;
   var target = p[Math.floor(Math.random() * p.length)];
+  pendingTarget = target;
   var out = $("nameOut"), steps = 14 + Math.floor(Math.random() * 7), i = 0;
-  $("stopBtn").disabled = true;
   (function decel(){
+    if(phase !== STOPPING) return;
     if(i >= steps){ land(target); return; }
     out.textContent = p[Math.floor(Math.random() * p.length)].name;
     beep(500 + (i % 4) * 30, .03, .04);
@@ -670,22 +836,50 @@ function stopSpin(){
     timer = setTimeout(decel, 55 + Math.pow(i / steps, 3) * 300);
   })();
 }
+/* Sauberer Abbruch: bei Klassenwechsel, leerem Topf, neuer Runde. */
+function abortSpin(msg){
+  if(phase === IDLE){ if(msg) toast(msg); return; }
+  clearTimeout(timer); timer = null;
+  phase = IDLE; pendingTarget = null;
+  var out = $("nameOut");
+  out.classList.remove("spinning");
+  out.setAttribute("aria-live", "polite");
+  out.classList.add("idle");
+  out.textContent = "Bereit";
+  $("spinBtn").hidden = false; $("spinBtn").textContent = "Ziehen";
+  $("stopBtn").hidden = true; $("stopBtn").disabled = false;
+  renderPickMeta();
+  if(msg) toast(msg);
+}
 function land(student){
-  spinning = false;
+  clearTimeout(timer); timer = null;
+  phase = IDLE; pendingTarget = null;
   var c = cls(), out = $("nameOut");
   out.classList.remove("spinning");
+  out.setAttribute("aria-live", "polite");
   out.textContent = student.name;
   $("stage").classList.remove("landed");
   void $("stage").offsetWidth;
   $("stage").classList.add("landed");
   $("spinBtn").hidden = false; $("stopBtn").hidden = true; $("stopBtn").disabled = false;
   $("spinBtn").textContent = "Nochmal ziehen";
+  focusIfLoose($("spinBtn"));
   beep(880, .25, .12); setTimeout(function(){ beep(1320, .3, .08); }, 90);
+
+  /* Vollständiger Schnappschuss, damit "Zurücklegen" auch einen
+     Rundenwechsel wieder aufheben kann. */
+  undoSnap = {
+    classId: c.id,
+    drawn: (c.drawn || []).slice(),
+    round: c.round || 1,
+    history: (c.history || []).slice(0, 40)
+  };
 
   if(S.options.noRepeat){
     var d = drawnList();
     if(d.indexOf(student.id) === -1) d.push(student.id);
-    if(d.length >= roster().length && roster().length){ c.drawn = []; c.round = (c.round || 1) + 1; }
+    var total = roster().length;
+    if(total && d.length >= total){ c.drawn = []; c.round = (c.round || 1) + 1; }
   }
   c.history = [student.name].concat(c.history || []).slice(0, 40);
   S.stats[c.id] = S.stats[c.id] || {};
@@ -694,15 +888,20 @@ function land(student){
   save(); renderPickMeta(); renderStats();
 }
 function putBack(){
-  if(!lastDrawn) return;
-  var c = cls();
-  var d = drawnList(), ix = d.indexOf(lastDrawn.id);
-  if(ix > -1) d.splice(ix, 1);
-  if(c.history && c.history.length) c.history.shift();
-  if(S.stats[c.id] && S.stats[c.id][lastDrawn.id]) S.stats[c.id][lastDrawn.id]--;
-  toast(lastDrawn.name + " ist wieder im Topf.");
-  lastDrawn = null;
-  $("nameOut").classList.add("idle"); $("nameOut").textContent = "Bereit";
+  if(phase !== IDLE || !lastDrawn || !undoSnap) return;
+  var c = S.classes.filter(function(x){ return x.id === undoSnap.classId; })[0];
+  if(c){
+    c.drawn = undoSnap.drawn.slice();
+    c.round = undoSnap.round;
+    c.history = undoSnap.history.slice();
+    if(S.stats[c.id] && S.stats[c.id][lastDrawn.id]){
+      S.stats[c.id][lastDrawn.id]--;
+      if(S.stats[c.id][lastDrawn.id] <= 0) delete S.stats[c.id][lastDrawn.id];
+    }
+    toast(lastDrawn.name + " ist wieder im Topf.");
+  }
+  lastDrawn = null; undoSnap = null;
+  $("nameOut").className = "name idle"; $("nameOut").textContent = "Bereit";
   $("spinBtn").textContent = "Ziehen";
   save(); renderPickMeta(); renderStats();
 }
@@ -870,14 +1069,29 @@ function renderChips(){
       save(); renderAll();
     });
     chip.appendChild(x);
-    chip.addEventListener("click", function(){ s.present = !s.present; save(); renderAll(); });
+    /* Anwesenheit direkt am Element umschalten statt die ganze Liste neu
+       zu bauen. Vorher wurde der Chip zwischen erstem und zweitem Klick
+       ersetzt — deshalb kam der Doppelklick zum Umbenennen nie an. */
+    chip.addEventListener("click", function(){
+      s.present = !s.present;
+      chip.classList.toggle("away", !s.present);
+      save(); renderChipMeta(); renderPickMeta();
+    });
     chip.addEventListener("dblclick", function(){
-      var n = prompt("Name ändern:", s.name);
-      if(n && n.trim()){ s.name = n.trim(); save(); renderAll(); }
+      // Die beiden Klicks davor heben sich gegenseitig auf, der Zustand stimmt also.
+      var neu = prompt("Name ändern:", s.name);
+      if(neu && neu.trim() && neu.trim() !== s.name){ s.name = neu.trim(); save(); renderAll(); }
     });
     box.appendChild(chip);
   });
   wrap.appendChild(box);
+}
+/* Nur die Zähler nachziehen — ohne die Chips neu zu bauen. */
+function renderChipMeta(){
+  var c = cls();
+  var present = c.students.filter(function(s){ return s.present; }).length;
+  $("classCount").textContent = c.students.length + " Personen · " + present + " anwesend";
+  $("groupBasis").textContent = roster().length + " Personen";
 }
 function renderStats(){
   var c = cls(), out = $("statsOut"); out.innerHTML = "";
@@ -927,7 +1141,7 @@ function bindSwitch(id, key, after){
 bindSwitch("optNoRepeat","noRepeat", renderPickMeta);
 bindSwitch("optOnlyPresent","onlyPresent", renderAll);
 bindSwitch("optOnlyPresent2","onlyPresent", renderAll);
-bindSwitch("optSound","sound");
+bindSwitch("optSound","sound", function(){ if(S.options.sound) resumeAudio(); });
 bindSwitch("optAvoidRepeat","avoidRepeat");
 bindSwitch("optRoles","roles", function(){ restoreGroups(); });
 
@@ -943,7 +1157,8 @@ $("groupNum").addEventListener("change", function(){ S.options.groupNum = parseI
 
 /* ---------- Ereignisse ---------- */
 $("classSelect").addEventListener("change", function(){
-  S.activeClass = this.value; lastDrawn = null;
+  abortSpin();                       // sonst landet der Name in der neuen Klasse
+  S.activeClass = this.value; lastDrawn = null; undoSnap = null;
   $("nameOut").className = "name idle"; $("nameOut").textContent = "Bereit";
   $("spinBtn").textContent = "Ziehen";
   save(); renderAll(); restoreGroups();
@@ -952,7 +1167,10 @@ $("spinBtn").addEventListener("click", startSpin);
 $("stopBtn").addEventListener("click", stopSpin);
 $("backBtn").addEventListener("click", putBack);
 $("resetRoundBtn").addEventListener("click", function(){
-  var c = cls(); c.drawn = []; c.round = 1; lastDrawn = null;
+  abortSpin();
+  var c = cls(); c.drawn = []; c.round = 1; lastDrawn = null; undoSnap = null;
+  $("nameOut").className = "name idle"; $("nameOut").textContent = "Bereit";
+  $("spinBtn").textContent = "Ziehen";
   save(); renderPickMeta(); toast("Neue Runde — alle sind wieder im Topf.");
 });
 $("makeGroupsBtn").addEventListener("click", makeGroups);
@@ -961,10 +1179,30 @@ $("clearGroupsBtn").addEventListener("click", function(){
   delete S.lastGroups[cls().id]; save(); renderGroups(null);
 });
 $("printGroupsBtn").addEventListener("click", function(){ window.print(); });
+function copyText(txt){
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.setAttribute("readonly","");
+    ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try{ ta.setSelectionRange(0, ta.value.length); }catch(e){}
+    var ok = false;
+    try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+    ta.remove();
+    toast(ok ? "Gruppen kopiert." : "Kopieren hat nicht geklappt — bitte von Hand markieren.");
+  }
+  /* Aus einer lokalen Datei heraus gibt es navigator.clipboard oft nicht,
+     und das Versprechen kann auch abgelehnt werden. Beides abfangen. */
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast("Gruppen kopiert."); }, fallback);
+  } else fallback();
+}
 $("copyGroupsBtn").addEventListener("click", function(){
   var txt = currentGroupsText();
-  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(function(){ toast("Gruppen kopiert."); });
-  else toast("Kopieren wird hier nicht unterstützt.");
+  if(!txt){ toast("Es gibt noch keine Gruppen."); return; }
+  copyText(txt);
 });
 
 $("addNameBtn").addEventListener("click", function(){
@@ -1011,8 +1249,9 @@ dz.addEventListener("drop", function(e){
 $("newClassBtn").addEventListener("click", function(){
   var n = prompt("Name der neuen Klasse:", "Klasse " + (S.classes.length + 1));
   if(!n || !n.trim()) return;
+  abortSpin();
   var c = { id:uid(), name:n.trim(), students:[] };
-  S.classes.push(c); S.activeClass = c.id;
+  S.classes.push(c); S.activeClass = c.id; lastDrawn = null; undoSnap = null;
   save(); renderAll(); restoreGroups(); selectTab("tab-class");
 });
 $("renameClassBtn").addEventListener("click", function(){
@@ -1022,10 +1261,11 @@ $("renameClassBtn").addEventListener("click", function(){
 $("deleteClassBtn").addEventListener("click", function(){
   if(S.classes.length === 1){ toast("Die letzte Klasse lässt sich nicht löschen."); return; }
   if(!confirm("Klasse „" + cls().name + "“ mit allen Namen löschen?")) return;
+  abortSpin();
   var id = cls().id;
   S.classes = S.classes.filter(function(c){ return c.id !== id; });
   delete S.stats[id]; delete S.lastGroups[id];
-  S.activeClass = S.classes[0].id;
+  S.activeClass = S.classes[0].id; lastDrawn = null; undoSnap = null;
   save(); renderAll(); restoreGroups();
 });
 $("allPresentBtn").addEventListener("click", function(){
@@ -1051,21 +1291,49 @@ $("themeBtn").addEventListener("click", function(){
   applyTheme(); save();
 });
 $("fsBtn").addEventListener("click", toggleFs);
+function fsElement(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
 function toggleFs(){
-  if(document.fullscreenElement) document.exitFullscreen();
-  else { selectTab("tab-pick"); (document.getElementById("pane-pick").requestFullscreen
-    ? document.getElementById("pane-pick") : document.documentElement).requestFullscreen(); }
+  var d = document;
+  if(fsElement()){
+    var exit = d.exitFullscreen || d.webkitExitFullscreen;
+    if(exit){ var r = exit.call(d); if(r && r.catch) r.catch(function(){}); }
+    return;
+  }
+  selectTab("tab-pick");
+  var node = $("pane-pick");
+  var req = node.requestFullscreen || node.webkitRequestFullscreen;
+  if(!req){ node = d.documentElement; req = node.requestFullscreen || node.webkitRequestFullscreen; }
+  if(!req){ toast("Vollbild wird von diesem Browser nicht angeboten."); return; }
+  /* Das Versprechen kann abgelehnt werden — unbehandelt landet das
+     als Fehler in der Konsole und der Knopf wirkt kaputt. */
+  var res = req.call(node);
+  if(res && res.catch) res.catch(function(){ toast("Der Browser hat das Vollbild abgelehnt."); });
 }
+["fullscreenchange","webkitfullscreenchange"].forEach(function(ev){
+  document.addEventListener(ev, function(){
+    var on = !!fsElement();
+    $("fsBtn").title = on ? "Vollbild verlassen (Taste F)" : "Vollbild (Taste F)";
+    $("fsBtn").setAttribute("aria-pressed", on ? "true" : "false");
+  });
+});
 
 /* Tastatur */
 document.addEventListener("keydown", function(e){
-  var t = e.target.tagName;
-  if(t === "INPUT" || t === "TEXTAREA" || t === "SELECT") return;
-  if(e.code === "Space" && $("pane-pick").hidden === false){
+  // Strg+F, Cmd+F und Alt+… gehören dem Browser, nicht uns.
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  var node = e.target, tag = node.tagName;
+  if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || node.isContentEditable) return;
+
+  var isSpace = (e.code === "Space" || e.key === " " || e.key === "Spacebar");
+  if(isSpace){
+    // Ein fokussierter Knopf bedient sich selbst — sonst passiert alles doppelt.
+    if(tag === "BUTTON" || tag === "A") return;
+    if($("pane-pick").hidden) return;
     e.preventDefault();
-    spinning ? stopSpin() : startSpin();
+    if(phase === IDLE) startSpin(); else stopSpin();
+    return;
   }
-  if(e.key === "f" || e.key === "F") toggleFs();
+  if(e.key === "f" || e.key === "F"){ e.preventDefault(); toggleFs(); }
 });
 
 /* ---------- Start ---------- */
